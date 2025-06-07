@@ -1,0 +1,13 @@
+[Unit]
+Description=Run node.js at startup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/bash /volume1/web/node.js/startup.sh
+WorkingDirectory=/volume1/web/node.js
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
