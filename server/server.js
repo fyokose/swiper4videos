@@ -27,7 +27,6 @@ const clients = new Set();
 
 // WebSocket接続の処理
 wss.on('connection', (ws) => {
-    console.log('接続');
     clients.add(ws);
 
     // メッセージ受信時の処理
