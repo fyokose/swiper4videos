@@ -1,0 +1,43 @@
+html {
+    background-color: black;
+}
+
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.swiper-slide {
+    color: greenyellow;
+    /*スライドの幅を指定*/
+    width: 960px;
+    height: 540px; /* 高さを480pxに変更 */
+    text-align: center;
+    line-height: 100px;
+    cursor: default; /* カーソルを標準状態に固定 */
+    margin: 0;
+}
+
+  /* Swiperコンテナを画面中央に配置 */
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.swiper {
+    width: 100%;
+    height: 540px; /* 高さを480pxに変更 */
+    display: flex;
+    align-items: center;
+}
+
+video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
