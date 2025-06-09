@@ -22,30 +22,34 @@ if (useTLS) {
     server = http.createServer(app);
 }
 
-const wss = new WebSocket.Server({ server });
-const clients = new Set();
+const wsServer = new WebSocket.Server({ server });
 
 // WebSocket接続の処理
-wss.on('connection', (ws) => {
-    clients.add(ws);
+wsServer.on('connection', (ws) => {
 
     // メッセージ受信時の処理
     ws.on('message', (message) => {
-        console.log(message);
-        let jsonMessage;
-        try {
-            jsonMessage = JSON.parse(message.toString());
-            
-            // IPアドレスを追加
-            const ip = ws._socket.remoteAddress;
-            jsonMessage.from = ip;
 
-            // toIPが指定されている場合は特定のクライアントのみに送信
+        try {
+            const msgObj = JSON.parse(message.toString());
+            //console.log(msgObj);
+
+            // デバッグモードの場合、デバッグ関数を呼び出して処理を終了
+            if (msgObj.debug === true) {
+                ws.send(JSON.stringify(debug(msgObj)));
+                return;
+            }
+            
+            // 送信元情報を追加
+            msgObj.from = `${ws._socket.remoteAddress}:${ws._socket.remotePort}`;
+
+            // toが指定されている場合は特定のクライアントのみに送信
             // 指定がない場合は全クライアントにブロードキャスト
-            wss.clients.forEach((client) => {
+            const messageStr = JSON.stringify(msgObj);
+            wsServer.clients.forEach((client) => {
                 if (client !== ws && client.readyState === WebSocket.OPEN) {
-                    if (!jsonMessage.to || client._socket.remoteAddress === jsonMessage.to) {
-                        client.send(JSON.stringify(jsonMessage));
+                    if (!msgObj.to || `${client._socket.remoteAddress}:${client._socket.remotePort}` === msgObj.to) {
+                        client.send(messageStr);
                     }
                 }
             });
@@ -56,7 +60,6 @@ wss.on('connection', (ws) => {
 
     // 接続が切れた時の処理
     ws.on('close', () => {
-        clients.delete(ws);
     });
 });
 
@@ -65,3 +68,23 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+function debug(msgObj) {
+    if ( msgObj.command.toLowerCase() === 'memoryusage') {
+        msgObj.memoryUsage = process.memoryUsage();
+    } else if (msgObj.command.toLowerCase() === 'cpuusage') {
+        msgObj.cpuUsage = process.cpuUsage();
+    } else if (msgObj.command.toLowerCase() === 'uptime') {
+        msgObj.uptime = process.uptime();
+    } else if (msgObj.command.toLowerCase() === 'websocketclients') {
+        msgObj.websocketClients = Array.from(wsServer.clients).map(client => {
+            return {
+                ip: client._socket.remoteAddress,
+                port: client._socket.remotePort,
+                id: `${client._socket.remoteAddress}:${client._socket.remotePort}`,
+                readyState: client.readyState
+            };
+        });
+    }
+    return msgObj;
+}
