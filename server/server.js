@@ -5,17 +5,16 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
+
+// サーバーの起動
 const app = express();
 
-// TLSを使用するかどうかの設定
-const useTLS = process.env.USE_TLS === 'true';
-
 let server;
-if (useTLS) {
+if (process.env.USE_TLS === 'true') {
     // SSL証明書の設定
     const options = {
-        key: fs.readFileSync(path.join(__dirname, 'private-key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'certificate.pem'))
+        key: fs.readFileSync(path.join(__dirname, process.env.PRIVATE_KEY)),
+        cert: fs.readFileSync(path.join(__dirname, process.env.CERTIFICATE))
     };
     server = https.createServer(options, app);
 } else {
@@ -64,19 +63,20 @@ wsServer.on('connection', (ws) => {
 });
 
 // サーバーの起動
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
 
 function debug(msgObj) {
-    if ( msgObj.command.toLowerCase() === 'memoryusage') {
+    const command = msgObj.command.toLowerCase();
+    if ( command === 'memoryusage') {
         msgObj.memoryUsage = process.memoryUsage();
-    } else if (msgObj.command.toLowerCase() === 'cpuusage') {
+    } else if (command === 'cpuusage') {
         msgObj.cpuUsage = process.cpuUsage();
-    } else if (msgObj.command.toLowerCase() === 'uptime') {
+    } else if (command === 'uptime') {
         msgObj.uptime = process.uptime();
-    } else if (msgObj.command.toLowerCase() === 'websocketclients') {
+    } else if (command === 'websocketclients') {
         msgObj.websocketClients = Array.from(wsServer.clients).map(client => {
             return {
                 ip: client._socket.remoteAddress,
