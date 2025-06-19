@@ -7,6 +7,12 @@ const marked = new Marked();
 
 
 addEventListener("DOMContentLoaded", async () => {
+    if(document.querySelectorAll('.guide-container').length === 0) {
+        return;
+    }
+
+    document.documentElement.style.backgroundColor = "white";
+    document.body.style.display = "inherit";
     
     // WebSocketClientのインスタンスを作成
     window.wsClient = new WebSocketClient({

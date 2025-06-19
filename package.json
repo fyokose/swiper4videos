@@ -4,11 +4,9 @@
   "description": "",
   "main": "debug.html",
   "scripts": {
-    "build": "npx webpack --config webpack.prod.js",
+    "build": "npx webpack --config webpack.prod.js ; npx webpack --config webpack.guid_prod.js",
     "test": "npx webpack --watch --config webpack.dev.js",
-    "start": "npx webpack serve --config webpack.dev.js",
-    "server": "node src/server.js",
-    "build_guide": "npx webpack --config webpack.guid_prod.js"
+    "start": "npx webpack serve --config webpack.dev.js"
   },
   "repository": {
     "type": "git",
