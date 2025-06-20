@@ -65,3 +65,14 @@ video, img {
     height: 100%;
     object-fit: contain;
 }
+
+.container-title {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    color: #fff;
+    font-size: 24px;
+    z-index: 1000;
+    text-align: center;
+    transform: translateY(-50%);
+}

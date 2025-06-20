@@ -14,7 +14,14 @@ addEventListener("DOMContentLoaded", () => {
     // WebSocketClientのインスタンスを作成
     const wsClient = new WebSocketClient({
         'playVideo': (client, message, from, pageTitle, pagePath) => {
-            fullscreenPane.playVideo(previewPane.currentSrc());
+            const currentSrc = message.data.src ? message.data.src : previewPane.currentSrc();
+            if(currentSrc) {
+                if(currentSrc.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                    fullscreenPane.showImage(currentSrc);
+                } else {
+                    fullscreenPane.playVideo(currentSrc);
+                }
+            }
         },
         'getVisibilityState': (client, message, from) => {
             console.log('可視性状態を受信:', message);
@@ -26,7 +33,14 @@ addEventListener("DOMContentLoaded", () => {
 
     const previewPane = new PreviewPane({
         onClick: (src) => {
-            fullscreenPane.playVideo(src);
+            const currentSrc = previewPane.currentSrc();
+            if(currentSrc) {
+                if(currentSrc.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                    fullscreenPane.showImage(currentSrc);
+                } else {
+                    fullscreenPane.playVideo(currentSrc);
+                }
+            }
         }
     });
 
