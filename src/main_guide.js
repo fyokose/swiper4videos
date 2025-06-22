@@ -2,14 +2,8 @@ import { Marked } from "marked";
 import WebSocketClient from './websocket-client.js';
 
 
-const marked = new Marked();
-
-
-
-addEventListener("DOMContentLoaded", async () => {
-    if(document.querySelectorAll('.guide-container').length === 0) {
-        return;
-    }
+export async function mainGuide() {
+    const marked = new Marked();
 
     document.documentElement.style.backgroundColor = "white";
     document.body.style.display = "inherit";
@@ -33,4 +27,4 @@ addEventListener("DOMContentLoaded", async () => {
     const html = marked.parse(markdown);
     console.log(html);
     document.body.innerHTML = html;
-});
+}

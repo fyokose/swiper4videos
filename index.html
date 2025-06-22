@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const lastClickUrl = document.cookie.split('; ').find(row => row.startsWith('last_click_url='))?.split('=')[1];
+            let autoClickLink = null;
+            Array.from(document.getElementsByTagName('a')).forEach(element => {
+                const url = element.href;
+                if (url === lastClickUrl) {
+                    autoClickLink = element;
+                }
+                element.onclick = () => {
+                    document.cookie = 'last_click_url=' + url;
+                }
+            });
+            if (autoClickLink) {
+                const redirectDiv = document.createElement('div');
+                redirectDiv.style.margin = '20px 0';
+                redirectDiv.style.textAlign = 'center';
+                redirectDiv.style.fontWeight = 'bold';
+                let count = 30;
+                const updateText = () => {
+                    redirectDiv.innerHTML = `${count}秒後に、前回の遷移先である <a href="${lastClickUrl}">${lastClickUrl}</a> に自動遷移します。`;
+                    count--;
+                    if (count >= 0) {
+                        setTimeout(updateText, 1000);
+                    }
+                    else {
+                        autoClickLink.click();
+                    }
+                };
+                updateText();
+                document.body.insertBefore(redirectDiv, document.body.firstChild);
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-size: 24px;
+        }
+        a {
+            margin: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <a href="debug.html">debug</a>
+    <a href="https://www.google.com">Google</a>
+</body>
+</html>
