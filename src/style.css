@@ -1,4 +1,7 @@
 html {
+    /* タッチ操作の挙動を制御 */
+    /* manipulation: ピンチズームを無効化し、タップのダブルタップズームを防止 */
+    touch-action: manipulation;
     background-color: black;
 }
 
@@ -55,6 +58,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #000;
 }
 
 video, img {

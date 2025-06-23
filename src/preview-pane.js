@@ -6,10 +6,10 @@ import { ContentsContainer } from './contents-container.js';
 
 export function PreviewPane (options) {
 
-    const instructionText = buildInstructionText();
-    
     const basePane = document.createElement('div');
     basePane.classList.add('base-pane');
+
+    const instructionText = buildInstructionText(basePane);
 
     const swiperContainer = document.createElement('div');
     swiperContainer.classList.add('swiper-container');
@@ -19,14 +19,10 @@ export function PreviewPane (options) {
     swiperWrapper.className = 'swiper-wrapper';
     swiperContainer.appendChild(swiperWrapper);
 
+    const onClick = options ? options.onClick : null;
+
     document.querySelectorAll('.contents-container').forEach(container => {
-        const controller = new ContentsContainer(container, {
-            onClick: (src) => {
-                if(onClick) {
-                    onClick(controller.getSources());
-                }
-            }
-        });
+        const controller = new ContentsContainer(container, { onClick });
         container.classList.add('swiper-slide');
         container.style.position = 'relative';
         container.controller = controller;
@@ -50,7 +46,6 @@ export function PreviewPane (options) {
         parallax:true,
     });
 
-    const onClick = options.onClick;
 
     this.resume = () => {
         instructionText.resume();
@@ -88,10 +83,17 @@ export function PreviewPane (options) {
     swiper.on('autoplayStop', pauseSlidePreview);
     swiper.on('slideChangeTransitionStart', pauseSlidePreview);
 
+    basePane.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if(onClick) {
+            onClick(swiper.slides[swiper.activeIndex].controller.getSources());
+        }
+    }, false);
+
     swiper.autoplay.stop();
 }
 
-function buildInstructionText() {
+function buildInstructionText(basePane) {
     const textArray = [
         'タッチで再生',
         'Touch to play'
@@ -137,7 +139,7 @@ function buildInstructionText() {
     // Initial text
     touchInstructionText.textContent = textArray[0];
 
-    document.body.appendChild(touchInstructionText);
+    basePane.appendChild(touchInstructionText);
 
     let timer = null;
     return {

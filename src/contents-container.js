@@ -6,6 +6,8 @@ export function ContentsContainer(rootElement, options) {
     const sorces = [];
     const contentsCount = rootElement.querySelectorAll('video, img').length;
 
+    const lang = rootElement.getAttribute('lang');
+
     if(contentsCount === 0) {
         return;
     } else if(contentsCount === 1) {
@@ -15,7 +17,7 @@ export function ContentsContainer(rootElement, options) {
             sorces.push({src: element.src, type: 'video'});
         } else if(element && element.tagName === 'IMG') {
             rootElement.appendChild(initImage(element));
-            sorces.push({src: element.src, type: 'image'});
+            sorces.push({src: element.src, type: 'image', time: parseTimeAttribute(element)});
         }
     } else {
         const swiperContainer = document.createElement('div');
@@ -35,7 +37,7 @@ export function ContentsContainer(rootElement, options) {
                 sorces.push({src: content.src, type: 'video'});
             } else if(content.tagName === 'IMG') {
                 initImage(content);
-                sorces.push({src: content.src, type: 'image'});
+                sorces.push({src: content.src, type: 'image', time: parseTimeAttribute(content)});
             }
             slide.appendChild(content);
             swiperWrapper.appendChild(slide);
@@ -99,11 +101,12 @@ export function ContentsContainer(rootElement, options) {
 
     if(options) {
         const onClick = options.onClick;
-        rootElement.addEventListener('click', () => {
+        rootElement.addEventListener('click', (event) => {
+            event.stopPropagation();
             if (onClick) {
-                onClick(rootElement.querySelector('video').src);
+                onClick(sorces);
             }
-        });
+        }, false);
     }
 
     this.resume = () => {
@@ -245,4 +248,14 @@ function initTitle(element) {
     element.style.color = '#fff';
     element.style.fontSize = '24px';
     element.setAttribute('data-swiper-parallax-opacity', '0.5'); // Add parallax attribute
+}
+
+function parseTimeAttribute(element) {
+    if (element) {
+        const time = element.getAttribute('time');
+        if(time) {
+            return Math.round(parseFloat(time) * 1000);
+        }
+    }
+    return null;
 }
