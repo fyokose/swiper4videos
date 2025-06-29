@@ -21,12 +21,16 @@ export function PreviewPane (options) {
 
     const onClick = options ? options.onClick : null;
 
-    document.querySelectorAll('.contents-container').forEach(container => {
-        const controller = new ContentsContainer(container, { onClick });
-        container.classList.add('swiper-slide');
-        container.style.position = 'relative';
-        container.controller = controller;
-        swiperWrapper.appendChild(container);
+    Array.from(document.body.children).forEach(container => {
+        if (container.tagName === 'IMG' || container.tagName === 'VIDEO' || container.tagName === 'DIV') {
+            const controller = new ContentsContainer(container, { onClick });
+            controller.element.classList.add('swiper-slide');
+            controller.element.style.position = 'relative';
+            controller.element.controller = controller;
+            swiperWrapper.appendChild(controller.element);
+        } else {
+            container.style.display = 'none';
+        }
     });
 
     

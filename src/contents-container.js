@@ -2,6 +2,16 @@ import Swiper from 'swiper/bundle';
 import 'swiper/css/bundle';
 
 export function ContentsContainer(rootElement, options) {
+    // If rootElement is a video or image, wrap it in a div
+    if (rootElement.tagName === 'VIDEO' || rootElement.tagName === 'IMG') {
+        const wrapper = document.createElement('div');
+        rootElement.parentElement.insertBefore(wrapper, rootElement);
+        wrapper.appendChild(rootElement);
+        rootElement = wrapper;
+    }
+
+    rootElement.classList.add('contents-container');
+    this.element = rootElement;
 
     const sorces = [];
     const contentsCount = rootElement.querySelectorAll('video, img').length;
@@ -63,6 +73,10 @@ export function ContentsContainer(rootElement, options) {
         const resumeSlidePreview = () => {
             const video = swiper.slides[swiper.activeIndex].querySelector('video');
             if(video) {
+                if(video.error) {
+                    // エラーが発生している場合は、動画のソースを再設定して再読み込みを試みる
+                    video.src = video.src;
+                }
                 video.play();
             }
         }
@@ -93,7 +107,7 @@ export function ContentsContainer(rootElement, options) {
     rootElement.appendChild(overlay);
 
     // Create title with parallax effect
-    const title = rootElement.querySelector('.container-title');
+    const title = rootElement.querySelector('div');
     if(title) {
         initTitle(title);
         rootElement.appendChild(title);
@@ -166,6 +180,10 @@ export function ContentsContainer(rootElement, options) {
             }
             
             // Start playing next video before fade
+            if(nextVideo.error) {
+                // エラーが発生している場合は、動画のソースを再設定して再読み込みを試みる
+                nextVideo.src = nextVideo.src;
+            }
             nextVideo.play();
             
             // Fade transition
@@ -189,6 +207,10 @@ export function ContentsContainer(rootElement, options) {
         };
 
         // Start first video
+        if(currentVideo.error) {
+            // エラーが発生している場合は、動画のソースを再設定して再読み込みを試みる
+            currentVideo.src = currentVideo.src;
+        }
         currentVideo.play();
         switchVideos();
     }
@@ -244,9 +266,11 @@ function initTitle(element) {
     if (!element) return;
     element.style.position = 'absolute';
     element.style.width = '100%';
-    element.style.top = '50%';
+    element.style.top = '10px'; // Changed to fixed top position
+    element.style.left = '10px'; // Added left position
     element.style.color = '#fff';
-    element.style.fontSize = '24px';
+    element.style.fontSize = '2vw'; // Responsive font size capped at 24px
+    element.style.textAlign = 'left'; // Added left alignment
     element.setAttribute('data-swiper-parallax-opacity', '0.5'); // Add parallax attribute
 }
 

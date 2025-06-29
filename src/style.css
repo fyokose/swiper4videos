@@ -80,3 +80,22 @@ video, img {
     text-align: center;
     transform: translateY(-50%);
 }
+
+
+
+.slides-video::-webkit-media-controls-play-button,
+.slides-video::-webkit-media-controls-timeline,
+.slides-video::-webkit-media-controls-current-time-display,
+.slides-video::-webkit-media-controls-time-remaining-display { 
+    display: initial;
+}
+
+.slides-video::-webkit-media-controls-fullscreen-button,
+.slides-video::-webkit-media-controls-mute-button,
+.slides-video::-webkit-media-controls-toggle-closed-captions-button,
+.slides-video::-webkit-media-controls-volume-slider { 
+    display: none;
+}
+
+
+

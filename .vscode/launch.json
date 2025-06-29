@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost:8080/debug.html",
+            "url": "http://localhost:8080/sample/index.html",
             "webRoot": "${workspaceFolder}",
             "sourceMapPathOverrides": {
                 "webpack:///./*": "${webRoot}/src/*",
