@@ -47,7 +47,10 @@ export function mainSlides() {
     const scrollbar = document.createElement('div');
     scrollbar.classList.add('swiper-scrollbar');
     scrollbar.style.backgroundColor = 'rgba(170, 170, 170, 0.1)';
+    scrollbar.style.height = '10px'; // スクロールバーの高さを10pxに設定
     scrollbar.style.display = 'none'; // 初期状態で非表示
+    scrollbar.style.top = '5px'; // 上部に配置
+    scrollbar.style.bottom = 'auto'; // デフォルトの下部配置を解除
     swiperContainer.appendChild(scrollbar);
 
     // Initialize Swiper
@@ -72,7 +75,6 @@ export function mainSlides() {
         },
     });
 
-    // スクロールバーのドラッグ部分を青色に
     const scrollbarDrag = swiperContainer.querySelector('.swiper-scrollbar-drag');
     if (scrollbarDrag) {
         scrollbarDrag.style.backgroundColor = '#aaa';
@@ -142,6 +144,7 @@ export function mainSlides() {
     });
 }
 
+/*
 function buildInstructionText(basePane) {
     const textArray = [
         'スワイプでお好きなスライドをご覧ください',
@@ -207,3 +210,4 @@ function buildInstructionText(basePane) {
         }
     };
 }
+*/
