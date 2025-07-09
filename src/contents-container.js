@@ -14,14 +14,15 @@ export function ContentsContainer(rootElement, options) {
     this.element = rootElement;
 
     const sorces = [];
-    const contentsCount = rootElement.querySelectorAll('video, img').length;
+    const title = rootElement.querySelector('div');
+    const contents = rootElement.querySelectorAll('video, img');
 
     const lang = rootElement.getAttribute('lang');
 
-    if(contentsCount === 0) {
+    if(contents.length === 0) {
         return;
-    } else if(contentsCount === 1) {
-        const element = rootElement.querySelector('video, img');
+    } else if(contents.length === 1) {
+        const element = contents[0];
         if(element && element.tagName === 'VIDEO') {
             rootElement.appendChild(initVideoPreview(element));
             sorces.push({src: element.src, type: 'video'});
@@ -38,7 +39,6 @@ export function ContentsContainer(rootElement, options) {
         swiperWrapper.classList.add('swiper-wrapper');
         swiperContainer.appendChild(swiperWrapper);
 
-        const contents = rootElement.querySelectorAll('video, img');
         contents.forEach(content => {
             const slide = document.createElement('div');
             slide.classList.add('swiper-slide');
@@ -106,8 +106,6 @@ export function ContentsContainer(rootElement, options) {
     overlay.style.zIndex = '100'; // スライドより上、タイトルより下
     rootElement.appendChild(overlay);
 
-    // Create title with parallax effect
-    const title = rootElement.querySelector('div');
     if(title) {
         initTitle(title);
         rootElement.appendChild(title);

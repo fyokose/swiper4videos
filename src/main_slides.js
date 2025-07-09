@@ -20,7 +20,7 @@ export function mainSlides() {
             swiperWrapper.appendChild(slide);
 
             if(element.tagName === 'VIDEO') {
-                element.controls = true; // 動画再生UIを表示
+                element.controls = false;
                 element.classList.add('slides-video');
                 element.muted = true;
                 element.loop = true;
@@ -49,7 +49,7 @@ export function mainSlides() {
     scrollbar.style.backgroundColor = 'rgba(170, 170, 170, 0.1)';
     scrollbar.style.height = '10px'; // スクロールバーの高さを10pxに設定
     scrollbar.style.display = 'none'; // 初期状態で非表示
-    scrollbar.style.top = '5px'; // 上部に配置
+    scrollbar.style.top = '0'; // 上部に配置
     scrollbar.style.bottom = 'auto'; // デフォルトの下部配置を解除
     swiperContainer.appendChild(scrollbar);
 
@@ -110,6 +110,7 @@ export function mainSlides() {
         document.querySelectorAll('video').forEach(video => {
             video.muted = false;
             video.loop = false;
+            video.controls = true;
         });
     });
 
@@ -132,6 +133,7 @@ export function mainSlides() {
             document.querySelectorAll('video').forEach(video => {
                 video.muted = true;
                 video.loop = true;
+                video.controls = false;
             });
 
             // autoplay再開時に現在のスライドが動画なら再生
