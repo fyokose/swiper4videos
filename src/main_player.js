@@ -31,6 +31,9 @@ export function mainPlayer() {
         }
     });
 
+    const ja = previewPane.countContentsByLanguage("ja");
+    const en = previewPane.countContentsByLanguage("en");
+
     const fullscreenPane = new FullscreenPane({
         onShow: () => {
             previewPane.pause();

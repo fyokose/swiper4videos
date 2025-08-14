@@ -1,12 +1,12 @@
 class WebSocketClient {
     client = this;
     // コンストラクタ
-    constructor(handlers = {}, port = 3000, reconnectDelay = 60000) {
-        const host = window.location.host.split(':')[0]; // ホスト名からポート番号を除去
+    constructor(onmessage = null, port = 3000, reconnectDelay = 60000) {
+        const host = window.location.protocol === 'file:' ? 'localhost' : window.location.host.split(':')[0]; // fileプロトコルの場合はlocalhost
         this.url = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${host}:${port}`;
         this.ws = null;
         this.isConnected = false;
-        this.handlers = handlers;
+        this.onmessage = typeof onmessage === 'function' ? onmessage : () => {};
         this.reconnectDelay = reconnectDelay; // デフォルト60秒
         this.connect(); // コンストラクタで接続を開始
     }
@@ -23,16 +23,8 @@ class WebSocketClient {
             this.ws.onmessage = (event) => {
                 try {
                     const message = JSON.parse(event.data);
-                    console.log(message);
-                    
                     if (!message.command) { return; }
-                    if (message.toPageTitle && message.toPageTitle !== document.title) { return; }
-                    if (message.toPagePath && message.toPagePath !== window.location.pathname) { return; }
-
-                    const handler = this.handlers[message.command];
-                    if (handler) {
-                        handler(this.client, message, message.from, message.pageTitle, message.pagePath);
-                    }
+                    this.onmessage(message);
                 } catch (error) {
                     console.error('メッセージの解析に失敗しました:', error);
                 }
@@ -57,17 +49,21 @@ class WebSocketClient {
         setTimeout(() => this.connect(), this.reconnectDelay);
     }
 
-    send(command, data = null, to = null, toPageTitle = null, toPagePath = null) {
+    /**
+     * WebSocketサーバーにメッセージを送信
+     * @param {string} command - 送信するコマンド
+     * @param {Object|null} options - コマンドのオプション
+     * @param {string|null} to - 送信先のクライアントID (特定のクライアントにのみ送信する場合)
+     * @param {boolean} isDebug - デバッグモードで送信するかどうか
+     */
+    send(command, options = null, to = null, isDebug = false) {
         if (this.isConnected && this.ws && command) {
             try {
                 const obj = {};
                 obj.command = command;
-                data && (obj.data = data);
+                obj.options = typeof options === 'object' && options !== null ? options : {};
                 to && (obj.to = to);
-                toPageTitle && (obj.toPageTitle = toPageTitle);
-                toPagePath && (obj.toPagePath = toPagePath);
-                obj.pageTitle = document.title;
-                obj.pagePath = window.location.pathname;
+                isDebug && (obj.debug = true);
                 this.ws.send(JSON.stringify(obj));
             } catch (error) {
             }
@@ -75,7 +71,7 @@ class WebSocketClient {
     }
 
     debug(command) {
-        this.ws.send(JSON.stringify({ command: command, debug: true }));
+        this.ws.send(command, null, null, true);
     }
 
     disconnect() {

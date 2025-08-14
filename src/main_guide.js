@@ -1,5 +1,5 @@
 import { Marked } from "marked";
-import WebSocketClient from './websocket-client.js';
+import WebSocketClientWrapper from './websocket-client-wrapper.js';
 import { ButtonParser } from './button-parser.js';
 
 
@@ -75,16 +75,18 @@ export async function mainGuide() {
     document.body.style.display = 'block';
     document.body.style.position = 'relative'; // fixedからrelativeに変更
     
-    // WebSocketClientのインスタンスを作成
-    window.wsClient = new WebSocketClient({
-        'playVideo': (client, message, from, pageTitle, pagePath) => {
-            const videosrc = swiper.slides[swiper.activeIndex].querySelector('video').src;
-            startFullscreenVideo(videosrc);
-        },
-        'getVisibilityState': (client, message, from) => {
-            console.log('可視性状態を受信:', message);
-            client.send('getVisibilityState', {'state': document.visibilityState}, from);
-        }
+    // WebSocketClientWrapperのインスタンスを作成
+    window.wsClient = new WebSocketClientWrapper();
+    
+    // カスタムハンドラーを登録
+    window.wsClient.registerHandler('playVideo', (message) => {
+        const videosrc = swiper.slides[swiper.activeIndex].querySelector('video').src;
+        startFullscreenVideo(videosrc);
+    });
+    
+    window.wsClient.registerHandler('getVisibilityState', (message) => {
+        console.log('可視性状態を受信:', message);
+        window.wsClient.send('getVisibilityState', {'state': document.visibilityState}, message.from);
     });
 
     // ButtonParserのインスタンスを作成
@@ -93,9 +95,7 @@ export async function mainGuide() {
     const src = document.body.getAttribute('src');
     const response = await fetch(src);
     const markdown = await response.text();
-    console.log(markdown);
     const html = marked.parse(markdown);
-    console.log(html);
     
     // コンテンツを配置
     contentContainer.innerHTML = html;
