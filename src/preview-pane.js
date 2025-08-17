@@ -70,7 +70,53 @@ export function PreviewPane (options) {
     };
 
     this.currentSrc = () => {
-        return swiper.slides[swiper.activeIndex].controller.currentSrc();
+        if (swiper.slides.length > 0) {
+            return swiper.slides[swiper.activeIndex].controller.getSources()[0].src;
+        } else {
+            return null;
+        }
+    };
+
+    this.getLanguages = () => {
+        let languages = [];
+        swiper.slides.forEach(slide => {
+            if (!languages.includes(slide.controller.getLang())) {
+                languages.push(slide.controller.getLang());
+            }
+        });
+        languages.sort();
+        return languages;
+    };
+
+    this.countContentsByLanguage = (lang) => {
+        lang = lang.toLowerCase();
+        let count = 0;
+        swiper.slides.forEach(slide => {
+            if (slide.controller.getLang() === lang) {
+                count++;
+            }
+        });
+        return count;
+    };
+
+    this.deleteContentsByLanguage = (langs) => {
+        if(!langs) { return; }
+
+        if(Array.isArray(langs)) {
+            langs = langs.map(lang => lang.toLowerCase());
+        } else {
+            langs = [langs.toLowerCase()];
+        }
+
+        for (let i = 0; i < swiper.slides.length; ) {
+            if (langs.includes(swiper.slides[i].controller.getLang())) {
+                swiper.removeSlide(i);
+            } else {
+                i++;
+            }
+        }
+
+        swiper.update();
     };
 
     const resumeSlidePreview = () => {
@@ -90,7 +136,9 @@ export function PreviewPane (options) {
     basePane.addEventListener('click', (event) => {
         event.stopPropagation();
         if(onClick) {
-            onClick(swiper.slides[swiper.activeIndex].controller.getSources());
+            if (swiper.slides.length > 0) {
+                onClick(swiper.slides[swiper.activeIndex].controller.getSources());
+            }
         }
     }, false);
 

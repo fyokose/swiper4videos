@@ -1,4 +1,4 @@
-export function FullscreenPane (options) {
+export function FullscreenPane (options, langs, videoUISettings) {
                 
     // フルスクリーン動画レイヤーの作成
     const basePane = document.createElement('div');
@@ -15,22 +15,35 @@ export function FullscreenPane (options) {
     const text = document.createElement('div');
     text.style.backgroundColor = 'black';
     text.style.color = 'white';
-    text.innerText = 'タッチしてシステムスタート';
-    text.style.fontSize = '100px';
+    text.style.fontSize = '6vw';
     wrapper.appendChild(text);
+
+    text.appendChild(document.createElement('span')).innerText = 'タッチしてシステムスタート';
+
+    if(langs) {
+        text.appendChild(buildLanguagesSelector(langs));
+    }
+
+    if(videoUISettings) {
+        text.appendChild(buildVideoUISelector(videoUISettings));
+    }
 
     const img = document.createElement('img');
     wrapper.appendChild(img);
+    img.style.display = 'none';
 
     const video = document.createElement('video');
     video.preload = 'auto';
     video.muted = true;
     wrapper.appendChild(video);
+    video.style.display = 'none';
 
     const onShow = options.onShow;
     const onClose = options.onClose;
+    const onInitialClose = options.onInitialClose;
     let timer = null;
     let status = null;
+    let isInitialClose = true;
     
     const show = (sorces, isMuted = false) => {
         if(sorces.length === 0) {
@@ -63,6 +76,25 @@ export function FullscreenPane (options) {
     }
 
     const close = () => {
+        if(isInitialClose) {
+            isInitialClose = false;
+            if(langs) {
+                for(let i = 0; i < langs.length; ) {
+                    if(!document.getElementById("lang_" + langs[i]).checked) {
+                        langs.splice(i, 1);
+                    } else {
+                        i++;
+                    }
+                }
+            }
+            if(videoUISettings) {
+                videoUISettings.isOn = document.getElementById("videoui_ison").checked;
+            }
+            if(onInitialClose) {
+                onInitialClose();
+            }
+        }
+
         if(status) {
             status.isRunning = false;
             status = null;
@@ -199,7 +231,92 @@ export function FullscreenPane (options) {
         video.play();
     }
 
-    // フルスクリーンレイヤーのクリックで閉じる
-    basePane.addEventListener('click', close, true);
+    const onVideoClick = () => {
+        if (video.paused) {
+            video.play();
+        } else {
+            video.pause();
+        }
+    }
+    this.setVideoUIEnabled = (isEnabled) => {
+        if(isEnabled) {
+            video.controls = true;
+            video.ontouchstart = onVideoClick;
+        } else {
+            video.controls = false;
+            video.ontouchstart = null;
+        }
+    }
 
+    // フルスクリーンレイヤーのクリックで閉じる
+    basePane.addEventListener('click', close, false);
+
+}
+
+function buildLanguagesSelector(langs) {
+    const div = document.createElement('div');
+    div.style.backgroundColor = '#555';
+    div.style.fontSize = '5vw';
+    div.style.margin = '3vw';
+    div.style.padding = '1vw';
+    div.innerText = '【表示言語】';
+
+    langs.forEach(lang => {
+        div.appendChild(buildCheckbox(lang, "lang_" + lang));
+    });
+
+    div.addEventListener('click', (e)=>{
+        e.stopPropagation();
+    }, false);
+
+    return div;
+}
+
+function buildVideoUISelector(videoUISettings) {
+    const div = document.createElement('div');
+    div.style.backgroundColor = '#555';
+    div.style.fontSize = '5vw';
+    div.style.margin = '3vw';
+    div.style.padding = '1vw';
+    div.innerText = '【動画UI】';
+
+    div.appendChild(buildCheckbox("UIを表示する", "videoui_ison", false));
+
+    div.addEventListener('click', (e)=>{
+        e.stopPropagation();
+    }, false);
+
+    return div;
+}
+
+function buildCheckbox(name, id, defaultValue = true) {
+    const span = document.createElement('span');
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.id = id;
+    input.name = name;
+    input.value = id;
+    
+    // クッキーから状態を読み込む
+    const savedState = document.cookie.split(';')
+        .find(c => c.trim().startsWith(id + '='));
+    input.checked = savedState ? savedState.split('=')[1] === 'true' : defaultValue;
+    
+    input.style.width = '4vw';
+    input.style.height = '4vw';
+    
+    const label = document.createElement('label');
+    label.htmlFor = id;
+    label.textContent = name;
+    label.style.marginRight = '3vw';
+    
+    span.appendChild(input);
+    span.appendChild(label);
+
+    // クリックイベントでクッキーに保存
+    input.addEventListener('change', () => {
+        document.cookie = `${id}=${input.checked}; max-age=31536000; path=/`;
+    });
+
+    return span;
 }

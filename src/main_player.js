@@ -6,22 +6,18 @@ import './style.css';
 
 export function mainPlayer() {
     // WebSocketClientのインスタンスを作成
-    const wsClient = new WebSocketClient({
-        'playVideo': (client, message, from, pageTitle, pagePath) => {
-            const currentSrc = message.data.src ? message.data.src : previewPane.currentSrc();
-            if(currentSrc) {
-                if(currentSrc.match(/\.(jpg|jpeg|png|gif)$/i)) {
-                    fullscreenPane.showImage(currentSrc);
-                } else {
-                    fullscreenPane.playVideo(currentSrc);
+    const wsClient = new WebSocketClient(
+        (msg) => {
+            if (msg.command === "playVideo") {
+                const currentSrc = msg.options?.src ? msg.options.src : previewPane.currentSrc();
+                if(currentSrc) {
+                    fullscreenPane.show(currentSrc);
                 }
+            } else if (msg.command === 'getVisibilityState') {
+                client.send('returnVisibilityState', {'state': document.visibilityState});
             }
-        },
-        'getVisibilityState': (client, message, from) => {
-            console.log('可視性状態を受信:', message);
-            client.send('returnVisibilityState', {'state': document.visibilityState}, from);
         }
-    });
+    );
     // WebSocketClientのインスタンスをグローバル変数に格納
     window.wsClient = wsClient;
 
@@ -31,8 +27,8 @@ export function mainPlayer() {
         }
     });
 
-    const ja = previewPane.countContentsByLanguage("ja");
-    const en = previewPane.countContentsByLanguage("en");
+    const langs = previewPane.getLanguages();
+    const videoUISettings = {isOn: false};
 
     const fullscreenPane = new FullscreenPane({
         onShow: () => {
@@ -40,12 +36,17 @@ export function mainPlayer() {
         },
         onClose: () => {
             previewPane.resume();
+        },
+        onInitialClose: () => {
+            previewPane.getLanguages().forEach(lang => {
+                    if(langs.indexOf(lang) === -1) {
+                    previewPane.deleteContentsByLanguage(lang);
+                }
+            });
+            if(videoUISettings.isOn) {
+                fullscreenPane.setVideoUIEnabled(true);
+            }
         }
-    });
-
+    }, langs.length <= 1 ? null : langs, videoUISettings);
     
 }
-
-
-
-

@@ -2,6 +2,9 @@ import Swiper from 'swiper/bundle';
 import 'swiper/css/bundle';
 
 export function ContentsContainer(rootElement, options) {
+    // 言語を取得
+    const lang = rootElement.getAttribute('lang')?.toLowerCase() || 'ja';
+
     // If rootElement is a video or image, wrap it in a div
     if (rootElement.tagName === 'VIDEO' || rootElement.tagName === 'IMG') {
         const wrapper = document.createElement('div');
@@ -16,8 +19,6 @@ export function ContentsContainer(rootElement, options) {
     const sorces = [];
     const title = rootElement.querySelector('div');
     const contents = rootElement.querySelectorAll('video, img');
-
-    const lang = rootElement.getAttribute('lang');
 
     if(contents.length === 0) {
         return;
@@ -147,6 +148,10 @@ export function ContentsContainer(rootElement, options) {
 
     this.getSources = () => {
         return sorces;
+    }
+    
+    this.getLang = () => {
+        return lang;
     }
 
     let intervalPreviewHandle = null;
